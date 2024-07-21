@@ -1,0 +1,5 @@
+org\acme\repositories\PersonRepository.class
+org\acme\Status.class
+org\acme\entities\Person.class
+org\acme\GreetingResource.class
+org\acme\entities\Greeting.class
