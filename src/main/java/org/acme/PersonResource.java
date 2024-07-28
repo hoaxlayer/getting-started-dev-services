@@ -2,19 +2,19 @@ package org.acme;
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
+import io.quarkus.vertx.http.Compressed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.acme.entities.Person;
 import org.acme.repositories.PersonRepository;
+import org.jboss.resteasy.reactive.RestQuery;
 
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Path("/persons")
 @Produces(MediaType.APPLICATION_JSON)
@@ -27,6 +27,32 @@ public class PersonResource {
     @GET
     public List<Person> list(){
         return personRepository.listAll();
+    }
+
+    public static class Parameters{
+        @RestQuery
+        Long id;
+
+        @RestQuery
+        String age;
+
+        @RestQuery
+        String name;
+
+        @RestQuery
+        LocalDate birth;
+
+        @RestQuery
+        Status status;
+
+        @RestQuery
+        @DefaultValue("0")
+        int pageNumber;
+
+        @RestQuery
+        @DefaultValue("10")
+        int pageSize;
+
     }
 
     @GET
@@ -82,20 +108,14 @@ public class PersonResource {
 
     @GET
     @Path("/search")
-    public List<Person> search(@QueryParam("pageNumber") @DefaultValue("0") int pageNumber,
-                               @QueryParam("pageSize") @DefaultValue("10") int pageSize,
-                               @QueryParam("status") Status status){
+    public List<Person> search(@BeanParam Parameters parameters){
 
         PanacheQuery<Person> entities;
-        entities = personRepository.findAll();
 
-        if (status!=null){
-            entities = personRepository.find("status", status);
-        } else {
-            entities = personRepository.findAll();
-        }
+        entities = personRepository.find("status", parameters.status);
 
-        return entities.page(Page.of(pageNumber, pageSize)).list();
+
+        return entities.page(Page.of(parameters.pageNumber, parameters.pageSize)).list();
     }
 
 }

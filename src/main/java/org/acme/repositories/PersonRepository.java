@@ -15,7 +15,7 @@ public class PersonRepository implements PanacheRepository<Person> {
     }
 
     public List<Person> findAlive(){
-        return list("status", Status.Alive);
+        return list("status", Status.ALIVE);
     }
 
 }
