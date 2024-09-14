@@ -32,4 +32,3 @@ replay_pid*
 /.mvn/
 /target/quarkus/bootstrap/dev-app-model.dat
 /target/
-/.idea/
