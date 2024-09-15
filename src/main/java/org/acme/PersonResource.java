@@ -1,18 +1,17 @@
 package org.acme;
 
-import io.quarkus.hibernate.orm.panache.PanacheQuery;
-import io.quarkus.panache.common.Page;
 import io.quarkus.vertx.http.Compressed;
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
+import jakarta.persistence.LockModeType;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import lombok.Data;
 import org.acme.entities.Person;
 import org.acme.repositories.PersonRepository;
 import org.jboss.resteasy.reactive.RestQuery;
 
-import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -24,11 +23,7 @@ public class PersonResource {
     @Inject
     PersonRepository personRepository;
 
-    @GET
-    public List<Person> list(){
-        return personRepository.listAll();
-    }
-
+    @Data
     public static class Parameters{
         @RestQuery
         Long id;
@@ -57,10 +52,20 @@ public class PersonResource {
 
     @GET
     @Path("/{id}")
-    public Person get(Long id){
-        return personRepository.findById(id);
+    public Uni<Response> get(Long id){
+        return personRepository.findById(id, LockModeType.READ)
+                .onItem()
+                .transform(person -> Response.ok().entity(person).build());
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Compressed
+    public Uni<List<Person>> list(){
+        return personRepository.listAll();
+    }
+
+    /*
     @POST
     @Transactional
     public Response create(Person person){
@@ -117,5 +122,5 @@ public class PersonResource {
 
         return entities.page(Page.of(parameters.pageNumber, parameters.pageSize)).list();
     }
-
+    */
 }

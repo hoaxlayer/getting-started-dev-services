@@ -1,8 +1,3 @@
-INSERT INTO Greeting(id, name)
-VALUES (nextval('Greeting_SEQ'), 'Alice');
-INSERT INTO Greeting(id, name)
-VALUES (nextval('Greeting_SEQ'), 'Bob');
-
 INSERT INTO person (id, birth, name, status) VALUES (1, '1995-09-12', 'Emily Brown', 0);
 INSERT INTO person (id, birth, name, status) VALUES (2, '1997-11-05', 'John Frusciante', 1);
 INSERT INTO person (id, birth, name, status) VALUES (3, '1988-01-23', 'Sophia Turner', 0);
