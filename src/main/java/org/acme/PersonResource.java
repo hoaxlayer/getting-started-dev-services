@@ -7,13 +7,7 @@ import jakarta.persistence.LockModeType;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import lombok.Data;
-import org.acme.entities.Person;
 import org.acme.repositories.PersonRepository;
-import org.jboss.resteasy.reactive.RestQuery;
-
-import java.time.LocalDate;
-import java.util.List;
 
 @Path("/persons")
 @Produces(MediaType.APPLICATION_JSON)
@@ -23,46 +17,23 @@ public class PersonResource {
     @Inject
     PersonRepository personRepository;
 
-    @Data
-    public static class Parameters{
-        @RestQuery
-        Long id;
-
-        @RestQuery
-        String age;
-
-        @RestQuery
-        String name;
-
-        @RestQuery
-        LocalDate birth;
-
-        @RestQuery
-        Status status;
-
-        @RestQuery
-        @DefaultValue("0")
-        int pageNumber;
-
-        @RestQuery
-        @DefaultValue("10")
-        int pageSize;
-
-    }
-
     @GET
     @Path("/{id}")
-    public Uni<Response> get(Long id){
-        return personRepository.findById(id, LockModeType.READ)
+    public Uni<Response> get(@PathParam("id") String id) {
+        return personRepository.findById(Long.valueOf(id), LockModeType.READ)
                 .onItem()
-                .transform(person -> Response.ok().entity(person).build());
+                .transform(person -> Response.ok().entity(person).build())
+                .onFailure()
+                .transform(failure -> new ServerErrorException(Response.serverError().build(), failure));
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Compressed
-    public Uni<List<Person>> list(){
-        return personRepository.listAll();
+    public Uni<Response> list(){
+        return personRepository.listAll()
+                .onItem()
+                .transform(personList -> Response.ok(personList).build());
     }
 
     /*
